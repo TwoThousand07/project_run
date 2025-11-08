@@ -116,3 +116,10 @@ STATIC_ROOT = 'static'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# COMPANY INFORMATION
+
+COMPANY_NAME = "Runnio"
+SLOGAN = "Каждый шаг - к новой цели"
+CONTACTS = "Бикиниум, улица Коралловая, 7, Башня «Bubble Tower», офис 12"
