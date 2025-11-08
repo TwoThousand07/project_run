@@ -2,10 +2,10 @@ from django.urls import path, include
 
 from .views import *
 
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
-router = DefaultRouter()
-router.register("runs/", RunViewSet, basename="run")
+router = SimpleRouter()
+router.register(r"runs", RunViewSet)
 
 
 
