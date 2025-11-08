@@ -24,6 +24,10 @@ class CompanyInformationAPIView(views.APIView):
         
     
 class RunViewSet(viewsets.ModelViewSet):
+    '''
+        Инфорация о забеге атлета
+    '''
+    
     queryset = Run.objects.all()
     serializer_class = RunSerializer
     
