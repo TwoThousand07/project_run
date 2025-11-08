@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 from rest_framework import views
@@ -7,7 +8,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 
-from .serializers import RunSerializer
+from .serializers import RunSerializer, UserSerializer
 from .models import Run
 
 
@@ -29,6 +30,15 @@ class RunViewSet(viewsets.ModelViewSet):
     '''
     
     queryset = Run.objects.all()
+    serializer_class = RunSerializer
+    
+    
+class UserViewSet(viewsets.ModelViewSet):
+    '''
+        Информация о пользователях
+    '''
+    
+    queryset = User.objects.all()
     serializer_class = RunSerializer
     
 
