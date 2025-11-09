@@ -12,4 +12,4 @@ class RunSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = ["id", "date_joined", "username", "last_name", "first_name", "type"]
