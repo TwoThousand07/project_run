@@ -3,16 +3,17 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 
-from rest_framework import views
+from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
+from rest_framework import status
 
 from .serializers import RunSerializer, UserSerializer
 from .models import Run
 
 
-class CompanyInformationAPIView(views.APIView):
+class CompanyInformationAPIView(APIView):
     '''
         Инфорация о странице
     '''
@@ -32,6 +33,44 @@ class RunViewSet(viewsets.ModelViewSet):
 
     queryset = Run.objects.select_related("athlete").all()
     serializer_class = RunSerializer
+
+
+class RunStartAPIView(APIView):
+    '''
+        Представление для инициализации старта забега
+    '''
+
+    def post(self, request, id):
+        try:
+            run = Run.objects.filter(id=id).first()
+        except Run.DoesNotExist:
+            return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+
+        if run.status in ("in_progress", "finished"):
+            return Response({"error": "Забег уже начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
+
+        run.status = "in_progress"
+        run.save()
+        return Response({"message": "Забег успешно начать!"}, status=status.HTTP_200_OK)
+
+
+class RunStopAPIView(APIView):
+    '''
+        Представление для инициалзиции завершения забега
+    '''
+
+    def post(self, request, id):
+        try:
+            run = Run.objects.filter(id=id).first()
+        except Run.DoesNotExist:
+            return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+
+        if run.status in ("init", "finished"):
+            return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
+
+        run.status = "finished"
+        run.save()
+        return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
