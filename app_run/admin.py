@@ -1,13 +1,13 @@
 from django.contrib import admin
 
-from .models import Run, User
+from .models import Run
 
 admin.site.register(Run)
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+# @admin.register(User)
+# class UserAdmin(admin.ModelAdmin):
     
-    list_display = ["username", "is_staff"]
+#     list_display = ["username", "is_staff"]
     
     

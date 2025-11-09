@@ -1,20 +1,20 @@
 from django.db import models
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 
 
-class User(AbstractUser):
-    CHOICES = (
-        ("athlete", "Атлет"),
-        ("coach", "Тренер")
-    )
+# class User(AbstractUser):
+#     CHOICES = (
+#         ("athlete", "Атлет"),
+#         ("coach", "Тренер")
+#     )
     
-    type = models.CharField(max_length=20, choices=CHOICES, default="athlete")
+#     type = models.CharField(max_length=20, choices=CHOICES, default="athlete")
 
-    def save(self, *args, **kwargs):
-        if self.type == "coach":
-            self.is_staff = True
-        super().save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         if self.type == "coach":
+#             self.is_staff = True
+#         super().save(*args, **kwargs)
     
 
 class Run(models.Model):

@@ -7,3 +7,6 @@ makemigr:
 
 migr:
 	python manage.py migrate --settings=project_run.settings.local
+
+superusr:
+	python manage.py createsuperuser --settings=project_run.settings.local
