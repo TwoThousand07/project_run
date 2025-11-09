@@ -42,7 +42,7 @@ class RunStartAPIView(APIView):
 
     def post(self, request, id):
         try:
-            run = Run.objects.filter(id=id).first()
+            run = Run.objects.get(id=id)
         except Run.DoesNotExist:
             return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -61,7 +61,7 @@ class RunStopAPIView(APIView):
 
     def post(self, request, id):
         try:
-            run = Run.objects.filter(id=id).first()
+            run = Run.objects.get(id=id)
         except Run.DoesNotExist:
             return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
 
