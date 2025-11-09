@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 
 from rest_framework import views
@@ -10,6 +10,8 @@ from rest_framework.response import Response
 
 from .serializers import RunSerializer, UserSerializer
 from .models import Run
+
+User = get_user_model()
 
 
 class CompanyInformationAPIView(views.APIView):
@@ -33,14 +35,24 @@ class RunViewSet(viewsets.ModelViewSet):
     serializer_class = RunSerializer
     
     
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     '''
         Информация о пользователях
     '''
     
     queryset = User.objects.all()
-    serializer_class = RunSerializer
+    serializer_class = UserSerializer
     
+    
+    def get_queryset(self):
+        qs = self.queryset.exclude(is_superuser=True)
+        
+        type = self.request.query_params.get("type", None) 
+        if type:
+            qs = qs.filter(type=type)
+                
+        return qs
+            
 
         
 

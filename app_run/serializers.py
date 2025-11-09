@@ -1,8 +1,6 @@
 from rest_framework import serializers
 
-from django.contrib.auth.models import User
-
-from .models import Run
+from .models import Run, User
 
 
 class RunSerializer(serializers.ModelSerializer):

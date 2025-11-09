@@ -118,6 +118,8 @@ STATIC_ROOT = 'static'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+AUTH_USER_MODEL = "app_run.User"
+
 # COMPANY INFORMATION
 
 COMPANY_NAME = "Runnio"
