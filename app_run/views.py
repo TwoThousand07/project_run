@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.response import Response
-
+from rest_framework.filters import SearchFilter
 
 from .serializers import RunSerializer, UserSerializer
 from .models import Run
@@ -41,6 +41,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = [SearchFilter]
+    search_fileds = ["first_name", "last_name"]
 
     def get_queryset(self):
         qs = self.queryset.exclude(is_superuser=True)
