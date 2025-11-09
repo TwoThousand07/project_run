@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     # THIRD PARTY
     'rest_framework',
+    "debug_toolbar",
     
     # LOCAL APPS
     'app_run',
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

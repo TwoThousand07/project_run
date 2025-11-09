@@ -30,7 +30,7 @@ class RunViewSet(viewsets.ModelViewSet):
         Инфорация о забеге атлета
     '''
 
-    queryset = Run.objects.all()
+    queryset = Run.objects.select_related("athlete").all()
     serializer_class = RunSerializer
 
 
