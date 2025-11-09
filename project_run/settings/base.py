@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # THIRD PARTY
     'rest_framework',
     "debug_toolbar",
+    'django_filters',
     
     # LOCAL APPS
     'app_run',

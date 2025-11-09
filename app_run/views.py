@@ -1,13 +1,14 @@
-from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth.models import User
 
-
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import status
+
+from django_filters.rest_framework import DjangoFilterBackend 
 
 from .serializers import RunSerializer, UserSerializer
 from .models import Run
@@ -26,11 +27,21 @@ class CompanyInformationAPIView(APIView):
         })
 
 
+class BasePagination(PageNumberPagination):
+    '''
+        Пагинация для RUN view
+    '''
+    page_size_query_param = 'size'
+    
+
 class RunViewSet(viewsets.ModelViewSet):
     '''
         Инфорация о забеге атлета
     '''
-
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ["created_at"]
+    filterset_fields = ["status", "athlete"]
+    pagination_class = BasePagination
     queryset = Run.objects.select_related("athlete").all()
     serializer_class = RunSerializer
 
@@ -80,7 +91,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, OrderingFilter]
+    ordering_fields = ["date_joined"]
+    pagination_class = BasePagination
     search_fields = ["first_name", "last_name"]
 
     def get_queryset(self):
