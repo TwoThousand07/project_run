@@ -117,8 +117,7 @@ class AthleteInfoAPIView(APIView):
         athlete_info, created = AthleteInfo.objects.prefetch_related(
             "athlete").get_or_create(athlete=athlete)
 
-        if created:
-            return Response({"message": "Объект был успешно создан!"}, status=status.HTTP_200_OK)
+        return Response({"message": "Объект был успешно создан!"}, status=status.HTTP_200_OK)
 
     def put(self, request, user_id):
 
