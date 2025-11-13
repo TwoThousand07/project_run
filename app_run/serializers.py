@@ -39,7 +39,8 @@ class RunSerializer(serializers.ModelSerializer):
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = AthleteInfo
         fields = "__all__"
+        
+    

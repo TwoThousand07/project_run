@@ -125,21 +125,21 @@ class AthleteInfoAPIView(APIView):
     def put(self, request, user_id):
 
         data = request.data
-        if data.get("weight") > 0 and data.get("weight") < 900:
+        athlete_serializer = AthleteInfoSerializer(data=data)
+        if athlete_serializer.is_valid():
+            if athlete_serializer.data.weight > 0 and athlete_serializer.data.weight < 900:
+                
+                athlete = get_object_or_404(User, id=user_id)
 
-            athlete = get_object_or_404(User, id=user_id)
+                athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
+                    "goals": data.get("goals"),
+                    "weight": int(data.get("weight"))
+                })
 
-            athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
-                "goals": data.get("goals"),
-                "weight": data.get("weight")
-            })
-
-            return Response(
-            {
-                "user_id": user_id,
-                "goals": data.get("goals"),
-                "weight": data.get("weight"),
-            }, 
-            status=status.HTTP_201_CREATED)
+                return Response(
+                athlete_serializer.data, 
+                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"error": "Вес должен быть больше 0 и меньше 900!"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"error": "Вес должен быть больше 0 и меньше 900!"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Валидация сериализатора не прошла!"}, status=status.HTTP_400_BAD_REQUEST)

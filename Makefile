@@ -10,3 +10,6 @@ migr:
 
 superusr:
 	python manage.py createsuperuser --settings=project_run.settings.local
+
+shell:
+	python manage.py shell
