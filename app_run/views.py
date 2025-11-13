@@ -117,7 +117,10 @@ class AthleteInfoAPIView(APIView):
         athlete_info, created = AthleteInfo.objects.prefetch_related(
             "athlete").get_or_create(athlete=athlete)
 
-        return Response({"message": "Объект был успешно создан!"}, status=status.HTTP_200_OK)
+        return Response({
+                "user_id": user_id,
+                "goals": athlete_info.goals,
+                "weight": athlete_info.weight}, status=status.HTTP_200_OK)
 
     def put(self, request, user_id):
 
@@ -131,6 +134,12 @@ class AthleteInfoAPIView(APIView):
                 "weight": data.get("weight")
             })
 
-            return Response({"message": "Объект был успешно создан или обновлён!"}, status=status.HTTP_201_CREATED)
+            return Response(
+            {
+                "user_id": user_id,
+                "goals": data.get("goals"),
+                "weight": data.get("weight"),
+            }, 
+            status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Вес должен быть больше 0 и меньше 900!"}, status=status.HTTP_400_BAD_REQUEST)
