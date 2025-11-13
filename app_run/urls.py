@@ -16,4 +16,6 @@ urlpatterns = [
     path("company_details/", CompanyInformationAPIView.as_view(), name="company_details"),
     path("runs/<int:id>/start/", RunStartAPIView.as_view(), name="run_start"),
     path("runs/<int:id>/stop/", RunStopAPIView.as_view(), name="run_stop"),
+    
+    path("athlete_info/<int:user_id>/", AthleteInfoAPIView.as_view(), name="athlete_info"),
 ]
