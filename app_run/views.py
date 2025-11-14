@@ -130,6 +130,7 @@ class AthleteInfoAPIView(APIView):
             if athlete_serializer.data.weight > 0 and athlete_serializer.data.weight < 900:
                 
                 athlete = get_object_or_404(User, id=user_id)
+                
                 athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
                     "goals": data.get("goals"),
                     "weight": int(data.get("weight"))
