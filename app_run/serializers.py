@@ -37,9 +37,12 @@ class RunSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AthleteInfoSerializer(serializers.ModelSerializer):
+class AthleteInfoSerializer(serializers.Serializer):
     athlete = UserSerializer(read_only=True)
-
-    class Meta:
-        model = AthleteInfo
-        fields = ["athlete", "goals", "weight"]
+    weight = serializers.IntegerField(required=False)
+    goals = serializers.CharField(required=False)
+    
+    def validate_weight(self, value):
+        if not(value > 0 and value < 900):
+            raise serializers.ValidationError("Вес должен быть больше 0 и меньше 900!")
+        return value
