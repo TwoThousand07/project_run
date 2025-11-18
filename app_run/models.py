@@ -22,5 +22,5 @@ class Run(models.Model):
 class AthleteInfo(models.Model):
     athlete = models.OneToOneField(User, related_name="athlete_info", on_delete=models.CASCADE)
     
-    goals = models.CharField(max_length=32, blank=True, null=True)
+    goals = models.CharField(blank=True, null=True)
     weight = models.IntegerField(blank=True, null=True)
