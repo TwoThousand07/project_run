@@ -126,13 +126,13 @@ class AthleteInfoAPIView(APIView):
 
         athlete_serializer = AthleteInfoSerializer(data=request.data)
         if athlete_serializer.is_valid():
-            if athlete_serializer.data.weight > 0 and athlete_serializer.data.weight < 900:
+            if athlete_serializer.data["weight"] > 0 and athlete_serializer.data["weight"] < 900:
                 
                 athlete = get_object_or_404(User, id=user_id)
                 
                 athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
                     "goals": athlete_serializer.validated_data["goals"],
-                    "weight": int(athlete_serializer.validated_data["weight"])
+                    "weight": athlete_serializer.validated_data["weight"]
                 })
 
                 return Response(

@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_staff:
             return "coach"
         return "athlete"
-    
+
     def get_runs_finished(self, obj):
         return Run.objects.filter(athlete=obj, status="finished").count()
 
@@ -37,10 +37,9 @@ class RunSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
 class AthleteInfoSerializer(serializers.ModelSerializer):
+    athlete = UserSerializer(read_only=True)
+
     class Meta:
         model = AthleteInfo
-        fields = "__all__"
-        
-    
+        fields = ["athlete", "goals", "weight"]
