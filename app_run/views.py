@@ -131,8 +131,8 @@ class AthleteInfoAPIView(APIView):
                 athlete = get_object_or_404(User, id=user_id)
                 
                 athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
-                    "goals": data.get("goals"),
-                    "weight": int(data.get("weight"))
+                    "goals": athlete_serializer.validated_data["goals"],
+                    "weight": int(athlete_serializer.validated_data["weight"])
                 })
 
                 return Response(
