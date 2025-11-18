@@ -124,8 +124,7 @@ class AthleteInfoAPIView(APIView):
 
     def put(self, request, user_id):
 
-        data = request.data
-        athlete_serializer = AthleteInfoSerializer(data=data)
+        athlete_serializer = AthleteInfoSerializer(data=request.data)
         if athlete_serializer.is_valid():
             if athlete_serializer.data.weight > 0 and athlete_serializer.data.weight < 900:
                 
