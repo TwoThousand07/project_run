@@ -12,4 +12,4 @@ superusr:
 	python manage.py createsuperuser --settings=project_run.settings.local
 
 shell:
-	python manage.py shell
+	python manage.py shell --settings=project_run.settings.local
