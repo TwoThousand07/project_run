@@ -82,6 +82,7 @@ class RunStopAPIView(APIView):
 
         run.status = "finished"
         run.save()
+        Challenge.objects.create(athlete=run.athlete, full_name="Сделай 10 Забегов!")
         return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
 
 
