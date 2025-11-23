@@ -11,7 +11,7 @@ from rest_framework import status
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
 from .models import Run, AthleteInfo, Challenge
 
 
@@ -138,6 +138,7 @@ class AthleteInfoAPIView(APIView):
             status=status.HTTP_201_CREATED)
             
             
-class ChallengeViewSet(viewsets.ModelViewSetViewSet):
+class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
+    serializer_class = ChallengeSerializer
     
