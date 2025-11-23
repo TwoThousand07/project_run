@@ -143,4 +143,5 @@ class AthleteInfoAPIView(APIView):
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
     serializer_class = ChallengeSerializer
+    lookup_field = "athlete.id"
     
