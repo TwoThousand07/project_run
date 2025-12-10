@@ -11,8 +11,9 @@ from rest_framework import status
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
-from .models import Run, AthleteInfo, Challenge
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
+from .models import Run, AthleteInfo, Challenge, Position
+from .filters import PositionFilter
 
 
 class CompanyInformationAPIView(APIView):
@@ -83,7 +84,8 @@ class RunStopAPIView(APIView):
         run.status = "finished"
         run.save()
         if Run.objects.filter(athlete=run.athlete, status="finished").count() == 10:
-            Challenge.objects.create(athlete=run.athlete, full_name="Сделай 10 Забегов!")
+            Challenge.objects.create(
+                athlete=run.athlete, full_name="Сделай 10 Забегов!")
         return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
 
 
@@ -120,28 +122,34 @@ class AthleteInfoAPIView(APIView):
             "athlete").get_or_create(athlete=athlete)
 
         return Response({
-                "user_id": user_id,
-                "goals": athlete_info.goals,
-                "weight": athlete_info.weight}, status=status.HTTP_200_OK)
+            "user_id": user_id,
+            "goals": athlete_info.goals,
+            "weight": athlete_info.weight}, status=status.HTTP_200_OK)
 
     def put(self, request, user_id):
 
         athlete_serializer = AthleteInfoSerializer(data=request.data)
         if athlete_serializer.is_valid(raise_exception=True):
             athlete = get_object_or_404(User, id=user_id)
-            
+
             athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
                 "goals": athlete_serializer.validated_data.get("goals", None),
                 "weight": athlete_serializer.validated_data.get("weight", None)
             })
 
             return Response(
-            athlete_serializer.data, 
-            status=status.HTTP_201_CREATED)
-            
-            
+                athlete_serializer.data,
+                status=status.HTTP_201_CREATED)
+
+
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
     serializer_class = ChallengeSerializer
     lookup_field = "athlete__id"
-    
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    queryset = Position.objects.select_related("run").all()
+    serializer_class = PositionSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PositionFilter

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .models import Run, AthleteInfo, Challenge
+from .models import Run, AthleteInfo, Challenge, Position
 
+from django.http import Http404
 from django.contrib.auth.models import User
 
 
@@ -41,14 +42,37 @@ class AthleteInfoSerializer(serializers.Serializer):
     athlete = UserSerializer(read_only=True)
     weight = serializers.IntegerField(required=False)
     goals = serializers.CharField(required=False)
-    
+
     def validate_weight(self, value):
-        if not(value > 0 and value < 900):
-            raise serializers.ValidationError("Вес должен быть больше 0 и меньше 900!")
+        if not (value > 0 and value < 900):
+            raise serializers.ValidationError(
+                "Вес должен быть больше 0 и меньше 900!")
         return value
-    
+
 
 class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = "__all__"
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    run = RunSerializer(read_only=True)
+
+    class Meta:
+        model = Position
+        fields = "__all__"
+
+    def validate_run(self, value):
+        if value.status != "in_progress":
+            raise Http404()
+
+    def validate_latitude(self, value):
+        if not (value >= -90.0 and value <= 90.0):
+            raise serializers.ValidationError(
+                "Широта должна быть между -90.0 и 90.0 включительно")
+
+    def validate_longitude(self, value):
+        if not (value >= -180.0 and value <= 180.0):
+            raise serializers.ValidationError(
+                "Долгота должна быть между -180.0 и 180.0 включительно")
