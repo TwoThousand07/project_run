@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from .models import Run, AthleteInfo, Challenge, Position
-from .filters import PositionFilter
+from .filters import PositionFilter, ChallengeFilter
 
 
 class CompanyInformationAPIView(APIView):
@@ -145,7 +145,8 @@ class AthleteInfoAPIView(APIView):
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
     serializer_class = ChallengeSerializer
-    lookup_field = "athlete__id"
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ChallengeFilter
 
 
 class PositionViewSet(viewsets.ModelViewSet):
