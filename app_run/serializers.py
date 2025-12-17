@@ -65,7 +65,7 @@ class PositionSerializer(serializers.ModelSerializer):
 
     def validate_run(self, value):
         if value.status != "in_progress":
-            raise Http404()
+            raise serializers.ValidationError("Запустить точку можно лишь на запущенном забеге")
         return value
 
     def validate_latitude(self, value):
