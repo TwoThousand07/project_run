@@ -15,6 +15,8 @@ from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, C
 from .models import Run, AthleteInfo, Challenge, Position
 from .filters import PositionFilter, ChallengeFilter
 
+from .services import calculate_distance_between_two_positions
+
 
 class CompanyInformationAPIView(APIView):
     '''
@@ -81,11 +83,31 @@ class RunStopAPIView(APIView):
         if run.status in ("init", "finished"):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
 
-        run.status = "finished"
-        run.save()
+        '''
+            Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
+        '''
         if Run.objects.filter(athlete=run.athlete, status="finished").count() == 10:
             Challenge.objects.create(
                 athlete=run.athlete, full_name="Сделай 10 Забегов!")
+
+        '''
+            После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
+        '''
+
+        total_distance = 0.0
+        prev_position = None
+
+        for pos in Position.objects.filter(run=run).iterator():
+            if prev_position:
+                total_distance += calculate_distance_between_two_positions(
+                    prev_position, pos)
+
+            prev_position = pos
+
+        run.status = "finished"
+        run.distance = total_distance
+        run.save()
+
         return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
 
 
