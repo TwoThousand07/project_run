@@ -57,7 +57,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 
 class PositionSerializer(serializers.ModelSerializer):
-    run = RunSerializer(read_only=True)
+    # run = RunSerializer(read_only=True)
 
     class Meta:
         model = Position

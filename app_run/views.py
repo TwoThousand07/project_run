@@ -174,5 +174,11 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.select_related("run").all()
     serializer_class = PositionSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = PositionFilter
+    
+    def get_queryset(self):
+        run = self.request.query_params.get("run")
+        
+        if run:
+            return self.queryset.filter(run=run)
+        
+        return self.queryset
