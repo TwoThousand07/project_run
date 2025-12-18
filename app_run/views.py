@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
@@ -14,7 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from .models import Run, AthleteInfo, Challenge, Position
 
-from .services import calculate_distance_between_two_positions
+from .services import calculate_total_run_distance
 
 
 class CompanyInformationAPIView(APIView):
@@ -82,7 +83,6 @@ class RunStopAPIView(APIView):
         if run.status in ("init", "finished"):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
 
-
         '''
             Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
         '''
@@ -91,21 +91,24 @@ class RunStopAPIView(APIView):
                 athlete=run.athlete, full_name="Сделай 10 Забегов!")
 
         '''
+            Если пользователь пробежал 50 км или больше, мы даем ему достижение "Пробеги 50 километров"!
+        '''
+
+        total_distance_of_all_runs_user = Run.objects.filter(athlete=run.athlete, status="finished").aggregate(
+            result=Sum("distance")
+        )
+
+        if total_distance_of_all_runs_user["result"] >= 50:
+            Challenge.objects.create(
+                athlete=run.athlete, full_name="Пробеги 50 километров!"
+            )
+
+        '''
             После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
         '''
 
-        total_distance = 0.0
-        prev_position = None
-
-        for pos in Position.objects.filter(run=run).iterator():
-            if prev_position:
-                total_distance += calculate_distance_between_two_positions(
-                    prev_position, pos)
-
-            prev_position = pos
-
         run.status = "finished"
-        run.distance = total_distance
+        run.distance = calculate_total_run_distance(run)
         run.save()
 
         return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
@@ -167,24 +170,24 @@ class AthleteInfoAPIView(APIView):
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
     serializer_class = ChallengeSerializer
-    
+
     def get_queryset(self):
         athlete = self.request.query_params.get("athlete")
-        
+
         if athlete:
             return self.queryset.filter(athlete=athlete)
-        
+
         return self.queryset
 
 
 class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.select_related("run").all()
     serializer_class = PositionSerializer
-    
+
     def get_queryset(self):
         run = self.request.query_params.get("run")
-        
+
         if run:
             return self.queryset.filter(run=run)
-        
+
         return self.queryset

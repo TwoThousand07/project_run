@@ -1,34 +1,35 @@
-from geopy.distance import geodesic
+from django.db.models import F, Window
+from django.db.models.functions import Lag
 
-from .models import Position, Run, Challenge
+from .models import Position, Run
+from .utils import calculate_distance_between_two_positions
 
-from django.contrib.auth.models import User
 
-
-def calculate_distance_between_two_positions(start_pos: Position, end_pos: Position) -> float:
+def calculate_total_run_distance(run_instance: Run) -> float:
     '''
-    Docstring для calculate_distance_between_two_positions
-    
-    :param start_pos: Начальная точка
-    :type start_pos: Position
-    :param end_pos: Конец точки
-    :type end_pos: Position
-    :return: Возвращаем дистанцию между двумя точками
-    :rtype: float
+        Вычисляем общую дистанцию забега
     '''
-    start = (start_pos.latitude, start_pos.longitude)
-    end = (end_pos.latitude, end_pos.longitude)
 
-    return geodesic(start, end).km
+    positions = Position.objects.filter(run=run_instance).annotate(
+        prev_lat=Window(
+            expression=Lag("latitude"),
+            order_by=F("id").asc()
+        ),
+        prev_lon=Window(
+            expression=Lag("longitude"),
+            order_by=F("id").asc()
+        )
+    )
 
+    total_distance = 0.0
 
-def create_challenge_for_run(athlete: User, full_name: str, value, *args) -> Challenge:
-    pass
+    for pos in positions:
+        if pos.prev_lat is None and pos.prev_lon is None:
+            continue
 
+        total_distance += calculate_distance_between_two_positions(
+            (pos.prev_lat, pos.prev_lon),
+            (pos.latitude, pos.longitude)
+        )
 
-# '''
-#     Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
-# '''
-# if Run.objects.filter(athlete=run.athlete, status="finished").count() == 10:
-#     Challenge.objects.create(
-#         athlete=run.athlete, full_name="Сделай 10 Забегов!")
+    return total_distance
