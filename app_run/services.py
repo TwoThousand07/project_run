@@ -50,7 +50,6 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
     '''
         Если пользователь пробежал 50 км или больше, мы даем ему достижение "Пробеги 50 километров"!
     '''
-
     total_distance_of_all_runs_user = Run.objects.filter(athlete=run_instance.athlete, status="finished").aggregate(
         result=Sum("distance")
     )

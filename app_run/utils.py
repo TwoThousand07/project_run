@@ -3,7 +3,7 @@ from geopy.distance import geodesic
 from .models import Position
 
 
-def calculate_distance_between_two_positions(start_pos: Position, end_pos: Position) -> float:
+def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
     '''
     Docstring для calculate_distance_between_two_positions
 
@@ -14,7 +14,5 @@ def calculate_distance_between_two_positions(start_pos: Position, end_pos: Posit
     :return: Возвращаем дистанцию между двумя точками
     :rtype: float
     '''
-    start = (start_pos.latitude, start_pos.longitude)
-    end = (end_pos.latitude, end_pos.longitude)
 
     return geodesic(start, end).km
