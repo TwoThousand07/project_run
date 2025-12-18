@@ -40,7 +40,6 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
         Создаем челленджи для завершеных забегов
     '''
 
-
     '''
         Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
     '''
@@ -56,7 +55,8 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
         result=Sum("distance")
     )
 
-    if total_distance_of_all_runs_user["result"] >= 50:
-        Challenge.objects.create(
-            athlete=run_instance.athlete, full_name="Пробеги 50 километров!"
-        )
+    if total_distance_of_all_runs_user != None:
+        if total_distance_of_all_runs_user["result"] >= 50:
+            Challenge.objects.create(
+                athlete=run_instance.athlete, full_name="Пробеги 50 километров!"
+            )
