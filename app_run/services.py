@@ -1,7 +1,7 @@
-from django.db.models import F, Window
+from django.db.models import F, Window, Sum
 from django.db.models.functions import Lag
 
-from .models import Position, Run
+from .models import Position, Run, Challenge
 from .utils import calculate_distance_between_two_positions
 
 
@@ -33,3 +33,30 @@ def calculate_total_run_distance(run_instance: Run) -> float:
         )
 
     return total_distance
+
+
+def creating_challenges_for_finished_runs(run_instance: Run) -> None:
+    '''
+        Создаем челленджи для завершеных забегов
+    '''
+
+
+    '''
+        Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
+    '''
+    if Run.objects.filter(athlete=run_instance.athlete, status="finished").count() == 10:
+        Challenge.objects.create(
+            athlete=run_instance.athlete, full_name="Сделай 10 Забегов!")
+
+    '''
+        Если пользователь пробежал 50 км или больше, мы даем ему достижение "Пробеги 50 километров"!
+    '''
+
+    total_distance_of_all_runs_user = Run.objects.filter(athlete=run_instance.athlete, status="finished").aggregate(
+        result=Sum("distance")
+    )
+
+    if total_distance_of_all_runs_user["result"] >= 50:
+        Challenge.objects.create(
+            athlete=run_instance.athlete, full_name="Пробеги 50 километров!"
+        )

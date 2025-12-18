@@ -15,7 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from .models import Run, AthleteInfo, Challenge, Position
 
-from .services import calculate_total_run_distance
+from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
 
 
 class CompanyInformationAPIView(APIView):
@@ -83,25 +83,8 @@ class RunStopAPIView(APIView):
         if run.status in ("init", "finished"):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
 
-        '''
-            Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
-        '''
-        if Run.objects.filter(athlete=run.athlete, status="finished").count() == 10:
-            Challenge.objects.create(
-                athlete=run.athlete, full_name="Сделай 10 Забегов!")
 
-        '''
-            Если пользователь пробежал 50 км или больше, мы даем ему достижение "Пробеги 50 километров"!
-        '''
-
-        total_distance_of_all_runs_user = Run.objects.filter(athlete=run.athlete, status="finished").aggregate(
-            result=Sum("distance")
-        )
-
-        if total_distance_of_all_runs_user["result"] >= 50:
-            Challenge.objects.create(
-                athlete=run.athlete, full_name="Пробеги 50 километров!"
-            )
+        creating_challenges_for_finished_runs(run)
 
         '''
             После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
