@@ -84,7 +84,6 @@ class RunStopAPIView(APIView):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-        creating_challenges_for_finished_runs(run)
 
         '''
             После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
@@ -93,6 +92,8 @@ class RunStopAPIView(APIView):
         run.status = "finished"
         run.distance = calculate_total_run_distance(run)
         run.save()
+
+        creating_challenges_for_finished_runs(run)
 
         return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
 
