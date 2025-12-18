@@ -32,6 +32,9 @@ class AthleteInfo(models.Model):
 class Challenge(models.Model):
     full_name = models.CharField()
     athlete = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"{self.athlete.username} - {self.full_name}"
 
 
 class Position(models.Model):

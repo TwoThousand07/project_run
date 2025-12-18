@@ -13,7 +13,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from .models import Run, AthleteInfo, Challenge, Position
-from .filters import PositionFilter, ChallengeFilter
 
 from .services import calculate_distance_between_two_positions
 
@@ -82,6 +81,7 @@ class RunStopAPIView(APIView):
 
         if run.status in ("init", "finished"):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         '''
             Если пользователь завершает 10 забегов, мы даем ему достижение "Сделай 10 Забегов!"
@@ -167,8 +167,14 @@ class AthleteInfoAPIView(APIView):
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related("athlete").all()
     serializer_class = ChallengeSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ChallengeFilter
+    
+    def get_queryset(self):
+        athlete = self.request.query_params.get("athlete")
+        
+        if athlete:
+            return self.queryset.filter(athlete=athlete)
+        
+        return self.queryset
 
 
 class PositionViewSet(viewsets.ModelViewSet):

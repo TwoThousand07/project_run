@@ -57,7 +57,6 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 
 class PositionSerializer(serializers.ModelSerializer):
-    # run = RunSerializer(read_only=True)
 
     class Meta:
         model = Position
@@ -65,7 +64,8 @@ class PositionSerializer(serializers.ModelSerializer):
 
     def validate_run(self, value):
         if value.status != "in_progress":
-            raise serializers.ValidationError("Запустить точку можно лишь на запущенном забеге")
+            raise serializers.ValidationError(
+                "Запустить точку можно лишь на запущенном забеге")
         return value
 
     def validate_latitude(self, value):
