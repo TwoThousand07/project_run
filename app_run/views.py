@@ -12,8 +12,17 @@ from rest_framework import status
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
-from .models import Run, AthleteInfo, Challenge, Position
+from .serializers import (RunSerializer,
+                          UserSerializer,
+                          AthleteInfoSerializer,
+                          ChallengeSerializer,
+                          PositionSerializer,
+                          CollectibleItemSerializer)
+from .models import (Run,
+                     AthleteInfo,
+                     Challenge,
+                     Position,
+                     CollectibleItem) 
 
 from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
 
@@ -175,3 +184,13 @@ class PositionViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(run=run)
 
         return self.queryset
+    
+    
+class CollectibleItemsAPIView(APIView):
+    def get(self, request):
+        queryset = CollectibleItem.objects.all()
+        serializer_class = CollectibleItemSerializer(queryset, many=True)
+        
+        return Response(serializer_class.data)
+        
+        

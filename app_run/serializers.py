@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from .models import Run, AthleteInfo, Challenge, Position
+from .models import Run, Challenge, Position, CollectibleItem
 
-from django.http import Http404
 from django.contrib.auth.models import User
 
 
@@ -79,3 +78,10 @@ class PositionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Долгота должна быть между -180.0 и 180.0 включительно")
         return value
+
+
+class CollectibleItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollectibleItem
+        fields = "__all__"
+

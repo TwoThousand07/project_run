@@ -44,3 +44,12 @@ class Position(models.Model):
 
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
+
+
+class CollectibleItem(models.Model):
+    name = models.CharField()
+    uid = models.CharField()
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    picture = models.URLField()
+    value = models.IntegerField()
