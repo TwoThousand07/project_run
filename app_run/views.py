@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -22,9 +24,10 @@ from .models import (Run,
                      AthleteInfo,
                      Challenge,
                      Position,
-                     CollectibleItem) 
+                     CollectibleItem)
 
 from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
+from .utils import import_xlsx_from_file
 
 
 class CompanyInformationAPIView(APIView):
@@ -91,8 +94,6 @@ class RunStopAPIView(APIView):
 
         if run.status in ("init", "finished"):
             return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
         '''
             После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
@@ -184,13 +185,21 @@ class PositionViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(run=run)
 
         return self.queryset
-    
-    
+
+
 class CollectibleItemsAPIView(APIView):
     def get(self, request):
         queryset = CollectibleItem.objects.all()
         serializer_class = CollectibleItemSerializer(queryset, many=True)
-        
+
         return Response(serializer_class.data)
-        
-        
+
+
+class UploadXLSXFilesAPIView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        uploaded_file = request.FILES['file']
+
+        result = import_xlsx_from_file(uploaded_file)
+        return Response(result, status=status.HTTP_400_BAD_REQUEST)

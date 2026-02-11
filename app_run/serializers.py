@@ -85,3 +85,20 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
         model = CollectibleItem
         fields = "__all__"
 
+
+
+
+
+    # name = models.CharField()
+    # uid = models.CharField()
+    # latitude = models.FloatField()
+    # longitude = models.FloatField()
+    # picture = models.URLField()
+    # value = models.IntegerField()
+    
+    def validate_name(self, value):
+        pass
+    
+    def validate_uid(self, value):
+        pass
+    

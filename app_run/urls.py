@@ -21,5 +21,7 @@ urlpatterns = [
     path("athlete_info/<int:user_id>/",
          AthleteInfoAPIView.as_view(), name="athlete_info"),
     
-    path("collectible_item/", CollectibleItemsAPIView.as_view())
+    path("collectible_item/", CollectibleItemsAPIView.as_view()),
+    
+    path('upload_file/', UploadXLSXFilesAPIView.as_view()),
 ]

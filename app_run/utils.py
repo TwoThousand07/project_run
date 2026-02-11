@@ -1,9 +1,5 @@
-from openpyxl import load_workbook, workbook
-
-from geopy.distance import geodesic
-
-
 def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
+    from geopy.distance import geodesic
     '''
     Docstring для calculate_distance_between_two_positions
 
@@ -18,22 +14,35 @@ def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
     return geodesic(start, end).km
 
 
-def open_xlsx(xlsx_name: str) -> dict:
+def import_xlsx_from_file(xlsx_name: str) -> list[list]:
+    from openpyxl import load_workbook
+    from .serializers import CollectibleItemSerializer
     '''
-        Функция открытия Excel XLSX таблиц, и последующей валидации их в представлениях
+        Получение xlsx файла и ее валидация
     '''
-    wb = load_workbook(xlsx_name)
 
+    wb = load_workbook(xlsx_name)
     ws = wb.active
 
-    result_dict = {}
+    rows = list(ws.iter_rows(values_only=True))
+    invalid_rows = []
 
-    # Проходимся циклом по всем столбцам таблицы XLSX, и добавляем его
-    # в result_dict в формате {"Название столбца" : ["Все значения этого столбца"]}
-    for column in ws.iter_cols(values_only=True):
-        header = column[0]
-        values = [val for val in column[1:] if val is not None]
+    header = [header.lower() for header in rows[0]]
+    data_rows = rows[1:]
 
-        result_dict[header] = values
+    # берем каждую строку отдельно, и валидируем
+    # строки которые прошли валидацию сохраняются в БД
+    # строки которые не прошли валидацию сохраняются в invalid_rows, и дальше обрабатываются в представлении
+    for row in data_rows:
+        data = dict(zip(header, row))
+
+        serializer = CollectibleItemSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            invalid_rows.append(list(row))
     
-    return result_dict
+    print(header)
+    
+    return invalid_rows
