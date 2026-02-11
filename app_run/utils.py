@@ -18,7 +18,7 @@ def import_xlsx_from_file(xlsx_name: str) -> list[list]:
     from openpyxl import load_workbook
     from .serializers import CollectibleItemSerializer
     '''
-        Получение xlsx файла и ее валидация
+        Получение xlsx файла и ее валидация, возвращает список непрошедших валидацию строк
     '''
 
     wb = load_workbook(xlsx_name)
