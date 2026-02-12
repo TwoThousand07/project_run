@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 
 from .models import Run, Challenge, Position, CollectibleItem
@@ -84,3 +85,4 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollectibleItem
         fields = "__all__"
+
