@@ -45,7 +45,7 @@ def import_xlsx_from_file(xlsx_name) -> list[list]:
             "value": raw_data.get("value"),
             "latitude": raw_data.get("latitude"),
             "longitude": raw_data.get("longitude"),
-            "url": raw_data.get("url")
+            "picture": raw_data.get("url")
         }
 
         serializer = CollectibleItemSerializer(data=clean_data)

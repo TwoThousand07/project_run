@@ -52,4 +52,4 @@ class CollectibleItem(models.Model):
     value = models.IntegerField()
     latitude = models.FloatField()
     longitude = models.FloatField()
-    url = models.URLField()
+    picture = models.URLField()
