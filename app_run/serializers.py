@@ -86,3 +86,14 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
         model = CollectibleItem
         fields = "__all__"
 
+    def validate_latitude(self, value):
+        if not (value >= -90.0 and value <= 90.0):
+            raise serializers.ValidationError(
+                "Широта должна быть между -90.0 и 90.0 включительно")
+        return value
+
+    def validate_longitude(self, value):
+        if not (value >= -180.0 and value <= 180.0):
+            raise serializers.ValidationError(
+                "Долгота должна быть между -180.0 и 180.0 включительно")
+        return value
