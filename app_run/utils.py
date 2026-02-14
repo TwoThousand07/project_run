@@ -1,5 +1,10 @@
+from .serializers import CollectibleItemSerializer
+
+from openpyxl import load_workbook
+from geopy.distance import geodesic
+
+
 def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
-    from geopy.distance import geodesic
     '''
     Docstring для calculate_distance_between_two_positions
 
@@ -15,8 +20,6 @@ def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
 
 
 def import_xlsx_from_file(xlsx_name) -> list[list]:
-    from openpyxl import load_workbook
-    from .serializers import CollectibleItemSerializer
     '''
         Получение xlsx файла и ее валидация, возвращает список непрошедших валидацию строк
     '''
@@ -30,13 +33,13 @@ def import_xlsx_from_file(xlsx_name) -> list[list]:
     header = [str(header).strip().lower() for header in rows[0]]
     data_rows = rows[1:]
 
-
     # берем каждую строку отдельно, и валидируем
     # строки которые прошли валидацию сохраняются в БД
     # строки которые не прошли валидацию сохраняются в invalid_rows, и дальше обрабатываются в представлении
     for row in data_rows:
-        if not any(row): continue
-        
+        if not any(row):
+            continue
+
         raw_data = dict(zip(header, row))
 
         clean_data = {
@@ -54,7 +57,7 @@ def import_xlsx_from_file(xlsx_name) -> list[list]:
             serializer.save()
         else:
             invalid_rows.append(list(row))
-    
+
     print(header)
-    
+
     return invalid_rows
