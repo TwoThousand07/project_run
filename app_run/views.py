@@ -16,6 +16,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (RunSerializer,
                           UserSerializer,
+                          UserDetailSerializer,
                           AthleteInfoSerializer,
                           ChallengeSerializer,
                           PositionSerializer,
@@ -129,6 +130,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         elif type == "athlete":
             qs = qs.filter(is_staff=False)
         return qs
+    
+    def get_serializer_class(self):
+        if self.action == "list":
+            return UserSerializer
+        if self.action == "retrieve":
+            return UserDetailSerializer
+        
+        return super().get_serializer_class()
 
 
 class AthleteInfoAPIView(APIView):
