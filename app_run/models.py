@@ -53,3 +53,6 @@ class CollectibleItem(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
     picture = models.URLField()
+
+    def __str__(self):
+        return f"{self.name} - ({self.latitude} : {self.longitude})"

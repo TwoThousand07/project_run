@@ -24,6 +24,17 @@ class UserSerializer(serializers.ModelSerializer):
         return Run.objects.filter(athlete=obj, status="finished").count()
 
 
+class UserDetailSerializer(UserSerializer):
+    items = serializers.SerializerMethodField()
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ["items"]
+
+    def get_items(self, obj):
+        pass
+
+
 class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
