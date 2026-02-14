@@ -41,7 +41,7 @@ class RunSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Run
-        fields = "__all__"
+        fields = ["athlete", "created_at", "comment", "status", "distance"]
 
 
 class AthleteInfoSerializer(serializers.Serializer):
@@ -59,7 +59,7 @@ class AthleteInfoSerializer(serializers.Serializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
-        fields = "__all__"
+        fields = ["full_name", "athlete"]
 
 
 class PositionSerializer(serializers.ModelSerializer):
@@ -90,7 +90,7 @@ class PositionSerializer(serializers.ModelSerializer):
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollectibleItem
-        fields = "__all__"
+        fields = ["name", "uid", "value", "latitude", "longitude", "picture"]
 
     def validate_latitude(self, value):
         if not (value >= -90.0 and value <= 90.0):
