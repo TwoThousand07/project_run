@@ -1,3 +1,5 @@
+from geopy.distance import geodesic
+
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -45,6 +47,17 @@ class Position(models.Model):
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
 
+    def save(self, force_insert=..., force_update=..., using=..., update_fields=...):
+        items = CollectibleItem.objects.all()
+
+        for item in items:
+            distance = geodesic((item.latitude, item.longitude), (self.latitude, self.longitude))
+            
+            if distance.m <= 100:
+                self.run.athlete.user_items.add(item)
+
+        return super().save(force_insert, force_update, using, update_fields)
+
 
 class CollectibleItem(models.Model):
     name = models.CharField(max_length=128)
@@ -53,7 +66,7 @@ class CollectibleItem(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
     picture = models.URLField()
-    
+
     user_items = models.ManyToManyField(User, related_name="items")
 
     def __str__(self):
