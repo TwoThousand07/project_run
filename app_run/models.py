@@ -47,8 +47,8 @@ class Position(models.Model):
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
 
-    def save(self, force_insert=..., force_update=..., using=..., update_fields=...):
-        super().save(force_insert, force_update, using, update_fields)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         
         items = CollectibleItem.objects.all()
 
