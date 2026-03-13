@@ -4,6 +4,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 class Run(models.Model):
@@ -19,6 +20,8 @@ class Run(models.Model):
     status = models.CharField(max_length=20, choices=CHOICES, default="init")
 
     distance = models.FloatField(default=0)
+
+    run_time_seconds = models.IntegerField(default=0)
 
     def __str__(self):
         return f'{self.athlete.username}: {self.comment[:30]}'
@@ -45,6 +48,8 @@ class Position(models.Model):
     latitude = models.DecimalField(decimal_places=4, max_digits=7)
     longitude = models.DecimalField(decimal_places=4, max_digits=7)
 
+    date_time = models.DateTimeField(default=timezone.now())
+
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
 
@@ -55,7 +60,7 @@ class Position(models.Model):
         for item in items:
             if not (-90 <= item.latitude <= 90 and -180 <= item.longitude <= 180):
                 continue
-            
+
             distance = geodesic((item.latitude, item.longitude),
                                 (self.latitude, self.longitude))
 
@@ -68,8 +73,10 @@ class CollectibleItem(models.Model):
     name = models.CharField(max_length=128)
     uid = models.CharField(max_length=128, unique=True)
     value = models.IntegerField()
-    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
-    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
+    latitude = models.FloatField(
+        validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    longitude = models.FloatField(
+        validators=[MinValueValidator(-180), MaxValueValidator(180)])
     picture = models.URLField()
 
     user_items = models.ManyToManyField(User, related_name="items", blank=True)
