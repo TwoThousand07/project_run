@@ -3,6 +3,7 @@ from geopy.distance import geodesic
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Run(models.Model):
@@ -48,24 +49,24 @@ class Position(models.Model):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
 
     def save(self, *args, **kwargs):
-        
+
         items = CollectibleItem.objects.all()
 
         for item in items:
-            distance = geodesic((item.latitude, item.longitude), (self.latitude, self.longitude))
-            
+            distance = geodesic((item.latitude, item.longitude),
+                                (self.latitude, self.longitude))
+
             if distance.m <= 100:
                 self.run.athlete.items.add(item)
         super().save(*args, **kwargs)
-
 
 
 class CollectibleItem(models.Model):
     name = models.CharField(max_length=128)
     uid = models.CharField(max_length=128, unique=True)
     value = models.IntegerField()
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
     picture = models.URLField()
 
     user_items = models.ManyToManyField(User, related_name="items", blank=True)
