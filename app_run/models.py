@@ -48,7 +48,6 @@ class Position(models.Model):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
         
         items = CollectibleItem.objects.all()
 
@@ -56,7 +55,8 @@ class Position(models.Model):
             distance = geodesic((item.latitude, item.longitude), (self.latitude, self.longitude))
             
             if distance.m <= 100:
-                self.run.athlete.user_items.add(item)
+                self.run.athlete.items.add(item)
+        super().save(*args, **kwargs)
 
 
 
@@ -68,7 +68,7 @@ class CollectibleItem(models.Model):
     longitude = models.FloatField()
     picture = models.URLField()
 
-    user_items = models.ManyToManyField(User, related_name="items")
+    user_items = models.ManyToManyField(User, related_name="items", blank=True)
 
     def __str__(self):
         return f"{self.name} - ({self.latitude} : {self.longitude})"
