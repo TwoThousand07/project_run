@@ -24,12 +24,6 @@ class UserSerializer(serializers.ModelSerializer):
         return Run.objects.filter(athlete=obj, status="finished").count()
 
 
-class UserDetailSerializer(UserSerializer):
-    class Meta(UserSerializer.Meta):
-        model = User
-        fields = UserSerializer.Meta.fields + ["items"]
-
-
 class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -41,7 +35,8 @@ class RunSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Run
-        fields = ["id", "athlete", "created_at", "comment", "status", "distance", "athlete_data"]
+        fields = ["id", "athlete", "created_at", "comment",
+                  "status", "distance", "athlete_data"]
 
 
 class AthleteInfoSerializer(serializers.Serializer):
@@ -103,3 +98,11 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Долгота должна быть между -180.0 и 180.0 включительно")
         return value
+
+
+class UserDetailSerializer(UserSerializer):
+    items = CollectibleItemSerializer(many=True)
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ["items"]
