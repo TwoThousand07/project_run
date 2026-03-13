@@ -102,6 +102,10 @@ class RunStopAPIView(APIView):
 
         run.status = "finished"
         run.distance = calculate_total_run_distance(run)
+        
+        # Вычисляем общее количество времени потраченное на забег
+            
+        
         run.save()
 
         creating_challenges_for_finished_runs(run)
