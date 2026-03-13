@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum
+from django.db.models import Max, Min
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view
@@ -104,7 +104,11 @@ class RunStopAPIView(APIView):
         run.distance = calculate_total_run_distance(run)
         
         # Вычисляем общее количество времени потраченное на забег
-            
+        date_times = run.position_set.aggregate(
+            max_date=Max("date_time"),
+            min_date=Min("date_time")
+        )
+        run.run_time_seconds = (date_times["max_date"] - date_times["min_date"]).total_seconds()
         
         run.save()
 
