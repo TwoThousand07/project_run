@@ -53,6 +53,9 @@ class Position(models.Model):
         items = CollectibleItem.objects.all()
 
         for item in items:
+            if not (-90 <= item.latitude <= 90 and -180 <= item.longitude <= 180):
+                continue
+            
             distance = geodesic((item.latitude, item.longitude),
                                 (self.latitude, self.longitude))
 
@@ -73,3 +76,7 @@ class CollectibleItem(models.Model):
 
     def __str__(self):
         return f"{self.name} - ({self.latitude} : {self.longitude})"
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
