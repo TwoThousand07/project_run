@@ -6,6 +6,8 @@ from .models import Position, CollectibleItem
 
 from django.db.models import Subquery, OuterRef, Exists
 
+from datetime import datetime, timedelta
+
 
 def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
     '''
@@ -65,18 +67,3 @@ def import_xlsx_from_file(xlsx_name) -> list[list]:
 
     return invalid_rows
 
-
-def add_collectibleitem_for_user_100m_radius(position_object: Position):
-    '''
-        if position находится рядом с collectibleitem,
-        то добавить в user_items(collectibe_item) и items(user) этот collectibleitem
-    '''
-
-    '''
-        for collectibleitem in collectible_items:
-            if calculate_distance_between_two_points((position_object.latitude, position_object.longitude), (collectibleitem.latitude, collectibleite.longitude)) <= 100:
-                position_object.run.athlete.items.add(collectibleitem)
-    '''
-
-    subquery = CollectibleItem.objects.filter(geodesic())
-    
