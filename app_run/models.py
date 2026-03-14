@@ -20,6 +20,7 @@ class Run(models.Model):
     status = models.CharField(max_length=20, choices=CHOICES, default="init")
 
     distance = models.FloatField(default=0)
+    speed = models.FloatField(default=0)
 
     run_time_seconds = models.IntegerField(default=0)
 
@@ -50,7 +51,8 @@ class Position(models.Model):
 
     date_time = models.DateTimeField()
     
-    speed = models.FloatField()
+    speed = models.FloatField(default=0)
+    distance = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"
