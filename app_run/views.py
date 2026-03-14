@@ -108,7 +108,11 @@ class RunStopAPIView(APIView):
             max_date=Max("date_time"),
             min_date=Min("date_time")
         )
-        run.run_time_seconds = (date_times["max_date"] - date_times["min_date"]).total_seconds()
+        
+        if date_times["min_date"] and date_times["max_date"]:
+            run.run_time_seconds = (date_times["max_date"] - date_times["min_date"]).total_seconds()
+        else:
+            run.run_time_seconds = 0
         
         run.save()
 
