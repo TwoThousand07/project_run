@@ -49,6 +49,8 @@ class Position(models.Model):
     longitude = models.DecimalField(decimal_places=4, max_digits=7)
 
     date_time = models.DateTimeField()
+    
+    speed = models.FloatField()
 
     def __str__(self):
         return f"{self.run.athlete.username} - latitude:{self.latitude}, longitude:{self.longitude}"

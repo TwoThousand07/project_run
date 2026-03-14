@@ -2,11 +2,6 @@ from .serializers import CollectibleItemSerializer
 
 from openpyxl import load_workbook
 from geopy.distance import geodesic
-from .models import Position, CollectibleItem
-
-from django.db.models import Subquery, OuterRef, Exists
-
-from datetime import datetime, timedelta
 
 
 def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
@@ -66,4 +61,3 @@ def import_xlsx_from_file(xlsx_name) -> list[list]:
     # print(header)
 
     return invalid_rows
-
