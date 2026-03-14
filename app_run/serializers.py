@@ -1,9 +1,10 @@
-import re
 from rest_framework import serializers
 
 from .models import Run, Challenge, Position, CollectibleItem
 
 from django.contrib.auth.models import User
+
+from django.db.models import Q, Count
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -21,7 +22,11 @@ class UserSerializer(serializers.ModelSerializer):
         return "athlete"
 
     def get_runs_finished(self, obj):
-        return Run.objects.filter(athlete=obj, status="finished").count()
+        finished_runs = Run.objects.aggregate(
+            finished_runs_count=Count("athlete", filter=Q(athlete=obj) & Q(status="finished"))
+        )
+        #  Run.objects.filter(athlete=obj, status="finished").count()
+        return finished_runs
 
 
 class AthleteSerializer(serializers.ModelSerializer):
@@ -59,7 +64,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 class PositionSerializer(serializers.ModelSerializer):
     date_time = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S.%f")
-    
+
     class Meta:
         model = Position
         fields = ["id", "run", "latitude", "longitude", "date_time"]
