@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Count, Q
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view
@@ -130,13 +130,16 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["first_name", "last_name"]
 
     def get_queryset(self):
-        qs = self.queryset.exclude(is_superuser=True)
+        qs = self.queryset.annotate(
+            runs_finished=Count("run", filter=Q(run__status="finished"))
+        ).exclude(is_superuser=True)
 
         type = self.request.query_params.get("type", None)
         if type == "coach":
             qs = qs.filter(is_staff=True)
         elif type == "athlete":
             qs = qs.filter(is_staff=False)
+            
         return qs
     
     def get_serializer_class(self):

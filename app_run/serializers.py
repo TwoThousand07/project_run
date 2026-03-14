@@ -9,7 +9,7 @@ from django.db.models import Q, Count
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
-    runs_finished = serializers.SerializerMethodField()
+    runs_finished = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
@@ -20,13 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_staff:
             return "coach"
         return "athlete"
-
-    def get_runs_finished(self, obj):
-        finished_runs = Run.objects.aggregate(
-            finished_runs_count=Count("athlete", filter=Q(athlete=obj) & Q(status="finished"))
-        )
-        #  Run.objects.filter(athlete=obj, status="finished").count()
-        return finished_runs
 
 
 class AthleteSerializer(serializers.ModelSerializer):
