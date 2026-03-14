@@ -59,3 +59,6 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
             Challenge.objects.create(
                 athlete=run_instance.athlete, full_name="Пробеги 50 километров!"
             )
+            
+def calculate_speed_between_two_positions(position_instance: Position) -> float:
+    pass

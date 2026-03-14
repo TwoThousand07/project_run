@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from geopy.distance import geodesic
 
 
-def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
+def calculate_distance_between_two_positions(start: tuple, end: tuple, measurement="km") -> float:
     '''
     Docstring для calculate_distance_between_two_positions
 
@@ -15,6 +15,8 @@ def calculate_distance_between_two_positions(start: tuple, end: tuple) -> float:
     :return: Возвращаем дистанцию между двумя точками
     :rtype: float
     '''
+    if measurement == "m":
+        return geodesic(start, end).m
 
     return geodesic(start, end).km
 
