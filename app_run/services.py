@@ -59,6 +59,25 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
             Challenge.objects.create(
                 athlete=run_instance.athlete, full_name="Пробеги 50 километров!"
             )
-            
-def calculate_speed_between_two_positions(position_instance: Position) -> float:
-    pass
+
+
+def calculate_speed_between_two_positions(run_instance: Run) -> float:
+    '''
+        Вычисляем скорость между двумя позициями,
+        используя дистанцию и время (u = s / t)
+    '''
+
+    positions = Position.objects.filter(run=run_instance).annotate(
+        prev_distance=Window(
+            expression=Lag("distance"),
+            order_by=F("id").asc()
+        ),
+        prev_date_time=Window(
+            expression=Lag("date_time"),
+            order_by=F("id").asc()
+        )
+    )
+
+    for position in positions:
+        if position.prev_distance is None and position.prev_date_time is None:
+            continue

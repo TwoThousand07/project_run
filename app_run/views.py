@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Max, Min, Count, Q
+from django.db.models import Max, Min, Count, Q, Avg
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view
@@ -102,18 +102,25 @@ class RunStopAPIView(APIView):
 
         run.status = "finished"
         run.distance = calculate_total_run_distance(run)
-        
+
         # Вычисляем общее количество времени потраченное на забег
-        date_times = run.position_set.aggregate(
+        aggregated_fields = run.position_set.aggregate(
             max_date=Max("date_time"),
-            min_date=Min("date_time")
+            min_date=Min("date_time"),
+            
+            # avg_speed
+            avg_speed=Avg("speed"),
         )
-        
-        if date_times["min_date"] and date_times["max_date"]:
-            run.run_time_seconds = (date_times["max_date"] - date_times["min_date"]).total_seconds()
+
+        if aggregated_fields["min_date"] and aggregated_fields["max_date"]:
+            run.run_time_seconds = (
+                aggregated_fields["max_date"] - aggregated_fields["min_date"]).total_seconds()
         else:
             run.run_time_seconds = 0
-        
+
+        # В поле speed добавляем среднюю скорость от всех позиции run
+        avg_speed = aggregated_fields["avg_speed"]
+
         run.save()
 
         creating_challenges_for_finished_runs(run)
@@ -143,15 +150,15 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=True)
         elif type == "athlete":
             qs = qs.filter(is_staff=False)
-            
+
         return qs
-    
+
     def get_serializer_class(self):
         if self.action == "list":
             return UserSerializer
         if self.action == "retrieve":
             return UserDetailSerializer
-        
+
         return super().get_serializer_class()
 
 
@@ -226,5 +233,5 @@ class UploadXLSXFilesAPIView(APIView):
         uploaded_file = request.FILES['file']
 
         result = import_xlsx_from_file(uploaded_file)
-        
+
         return Response(result, status=status.HTTP_200_OK)
