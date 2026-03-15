@@ -103,11 +103,11 @@ class RunStopAPIView(APIView):
         run.status = "finished"
         run.distance = calculate_total_run_distance(run)
 
-        # Вычисляем общее количество времени потраченное на забег
+        # Вычисляем общее количество времени потраченное на забег и среднюю скорость
         aggregated_fields = run.position_set.aggregate(
             max_date=Max("date_time"),
             min_date=Min("date_time"),
-            
+
             # avg_speed
             avg_speed=Avg("speed"),
         )

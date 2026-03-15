@@ -61,7 +61,7 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
             )
 
 
-def calculate_speed_between_two_positions(run_instance: Run) -> float:
+def calculate_speed_between_two_positions(run_instance: Run):
     '''
         Вычисляем скорость между двумя позициями,
         используя дистанцию и время (u = s / t)
@@ -81,3 +81,6 @@ def calculate_speed_between_two_positions(run_instance: Run) -> float:
     for position in positions:
         if position.prev_distance is None and position.prev_date_time is None:
             continue
+        
+        position.speed = ((position.distance - position.prev_distance) * 1000) / (position.date_time - position.prev_date_time).total_seconds()
+        position.save()        

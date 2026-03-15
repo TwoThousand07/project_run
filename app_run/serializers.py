@@ -34,7 +34,7 @@ class RunSerializer(serializers.ModelSerializer):
     class Meta:
         model = Run
         fields = ["id", "athlete", "created_at", "run_time_seconds", "comment",
-                  "status", "distance", "athlete_data"]
+                  "status", "distance", "speed", "athlete_data"]
 
 
 class AthleteInfoSerializer(serializers.Serializer):
@@ -60,7 +60,7 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "run", "latitude", "longitude", "date_time"]
+        fields = ["id", "run", "latitude", "longitude", "date_time", "speed", "distance"]
 
     def validate_run(self, value):
         if value.status != "in_progress":
