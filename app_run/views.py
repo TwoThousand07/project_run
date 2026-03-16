@@ -121,6 +121,8 @@ class RunStopAPIView(APIView):
         # В поле speed добавляем среднюю скорость от всех позиции run
         avg_speed = aggregated_fields["avg_speed"]
 
+        run.speed = avg_speed
+
         run.save()
 
         creating_challenges_for_finished_runs(run)
