@@ -4,7 +4,7 @@ from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
 
 
 class RunAdmin(admin.ModelAdmin):
-    list_display = ("athlete", "created_at", "distance")
+    list_display = ("athlete", "created_at", "distance", "status", "speed")
 
 
 admin.site.register(Run, RunAdmin)

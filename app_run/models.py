@@ -4,7 +4,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils import timezone
 
 
 class Run(models.Model):
@@ -14,7 +13,8 @@ class Run(models.Model):
         ("finished", "Завершенный")
     )
 
-    athlete = models.ForeignKey(User, on_delete=models.CASCADE, related_name="run")
+    athlete = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="run")
     created_at = models.DateTimeField(auto_now_add=True)
     comment = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=CHOICES, default="init")
@@ -50,7 +50,7 @@ class Position(models.Model):
     longitude = models.DecimalField(decimal_places=4, max_digits=7)
 
     date_time = models.DateTimeField()
-    
+
     speed = models.FloatField(default=0)
     distance = models.FloatField(default=0)
 

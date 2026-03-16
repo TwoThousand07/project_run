@@ -4,8 +4,6 @@ from .models import Run, Challenge, Position, CollectibleItem
 
 from django.contrib.auth.models import User
 
-from django.db.models import Q, Count
-
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
@@ -60,7 +58,8 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "run", "latitude", "longitude", "date_time", "speed", "distance"]
+        fields = ["id", "run", "latitude", "longitude",
+                  "date_time", "speed", "distance"]
 
     def validate_run(self, value):
         if value.status != "in_progress":

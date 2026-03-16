@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Min, Count, Q, Avg
 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import api_view
+
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework import viewsets
