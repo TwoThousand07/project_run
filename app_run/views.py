@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Max, Min, Count, Q, Avg
+from django.db.models import Max, Min, Count, Q, Avg, Sum
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -28,7 +28,7 @@ from .models import (Run,
                      CollectibleItem)
 
 from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
-from .utils import import_xlsx_from_file
+from .utils import import_xlsx_from_file, calculate_distance_between_two_positions
 
 
 class CompanyInformationAPIView(APIView):
@@ -219,6 +219,20 @@ class PositionViewSet(viewsets.ModelViewSet):
 
         return self.queryset
 
+    def perform_create(self, serializer):
+        instance = serializer.save() # runner2 - latitude:12.0000, longitude:35.0000 
+        try:
+            position_before = Position.objects.filter(run=instance.run).order_by("-date_time")[1]
+            
+            distance_between_before_and_now = calculate_distance_between_two_positions((position_before.latitude, position_before.longitude), (instance.latitude, instance.longitude), measurement="m")
+            timedelta_between = instance.date_time - position_before.date_time
+            
+            instance.speed = round(distance_between_before_and_now / timedelta_between.total_seconds(), 2) 
+            instance.distance = round((distance_between_before_and_now * 0.001) + position_before.distance, 2)
+
+            instance.save()
+        except IndexError:
+            instance.save()
 
 class CollectibleItemsAPIView(APIView):
     def get(self, request):
