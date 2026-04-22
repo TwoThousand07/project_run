@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Max, Min, Count, Q, Avg, Sum
@@ -25,7 +26,8 @@ from .models import (Run,
                      AthleteInfo,
                      Challenge,
                      Position,
-                     CollectibleItem)
+                     CollectibleItem,
+                     Subscripe)
 
 from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
 from .utils import import_xlsx_from_file, calculate_distance_between_two_positions
@@ -220,19 +222,24 @@ class PositionViewSet(viewsets.ModelViewSet):
         return self.queryset
 
     def perform_create(self, serializer):
-        instance = serializer.save() # runner2 - latitude:12.0000, longitude:35.0000 
+        instance = serializer.save()  # runner2 - latitude:12.0000, longitude:35.0000
         try:
-            position_before = Position.objects.filter(run=instance.run).order_by("-date_time")[1]
-            
-            distance_between_before_and_now = calculate_distance_between_two_positions((position_before.latitude, position_before.longitude), (instance.latitude, instance.longitude), measurement="m")
+            position_before = Position.objects.filter(
+                run=instance.run).order_by("-date_time")[1]
+
+            distance_between_before_and_now = calculate_distance_between_two_positions(
+                (position_before.latitude, position_before.longitude), (instance.latitude, instance.longitude), measurement="m")
             timedelta_between = instance.date_time - position_before.date_time
-            
-            instance.speed = round(distance_between_before_and_now / timedelta_between.total_seconds(), 2) 
-            instance.distance = round((distance_between_before_and_now * 0.001) + position_before.distance, 2)
+
+            instance.speed = round(
+                distance_between_before_and_now / timedelta_between.total_seconds(), 2)
+            instance.distance = round(
+                (distance_between_before_and_now * 0.001) + position_before.distance, 2)
 
             instance.save()
         except IndexError:
             instance.save()
+
 
 class CollectibleItemsAPIView(APIView):
     def get(self, request):
@@ -251,3 +258,32 @@ class UploadXLSXFilesAPIView(APIView):
         result = import_xlsx_from_file(uploaded_file)
 
         return Response(result, status=status.HTTP_200_OK)
+
+
+class SubscripeToCoachAPIView(APIView):
+
+    def post(self, request, id):
+        coach_id = id
+        athlete_id = request.data.get("athlete")
+
+        try:
+            coach = User.objects.get(id=coach_id)
+        except User.DoesNotExist:
+            return Response({"error": "Тренера с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            athlete = User.objects.get(id=athlete_id)
+        except User.DoesNotExist:
+            return Response({"error": "Атлета с данным айди не существует"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if (not coach.is_staff) or (athlete.is_staff):
+            return Response({"error": "Подписываться могут только athlete, и можно подписываться только к coach"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Subscripe.objects.create(
+                coach=coach,
+                athlete=athlete
+            )
+        except IntegrityError:
+            return Response({"error": "Подписаться можно лишь один раз"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": f"Атлет {athlete_id} успешно подписался на тренера {coach_id}"}, status=status.HTTP_200_OK)

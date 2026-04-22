@@ -24,4 +24,6 @@ urlpatterns = [
     path("collectible_item/", CollectibleItemsAPIView.as_view()),
     
     path('upload_file/', UploadXLSXFilesAPIView.as_view()),
+    
+    path("subscripe_to_coach/<int:id>/", SubscripeToCoachAPIView.as_view())
 ]
