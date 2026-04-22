@@ -97,5 +97,8 @@ class Subscripe(models.Model):
     coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscribers")
     athlete = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
     
+    def __str__(self):
+        return f"(({self.athlete.username})) subscribed to (({self.coach.username}))"
+    
     class Meta:
         unique_together = ("coach", "athlete")
