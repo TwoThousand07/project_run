@@ -66,5 +66,5 @@ def creating_challenges_for_finished_runs(run_instance: Run) -> None:
     
     if (run_instance.run_time_seconds / 60) <= 10 and run_instance.distance >= 2:
         Challenge.objects.create(
-            athlete=run_instance.athlete, full_name="Челлендж 2 км за 10 минут!"
+            athlete=run_instance.athlete, full_name="2 километра за 10 минут!"
         )
