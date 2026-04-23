@@ -129,6 +129,6 @@ class UserCoachDetailSerializer(UserDetailSerializer):
         fields = UserDetailSerializer.Meta.fields + ["athletes"]
 
     def get_athletes(self, obj):
-        return [id for id in obj.subscribers.values_list("id", flat=True)]
+        return [id for id in obj.subscribers.values_list("athlete_id", flat=True)]
         
         
