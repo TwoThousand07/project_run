@@ -18,6 +18,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import (RunSerializer,
                           UserSerializer,
                           UserDetailSerializer,
+                          UserAthleteDetailSerializer,
                           AthleteInfoSerializer,
                           ChallengeSerializer,
                           PositionSerializer,
@@ -161,7 +162,10 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == "list":
             return UserSerializer
         if self.action == "retrieve":
-            return UserDetailSerializer
+            user_id = self.kwargs.get("pk")
+            if self.get_queryset().filter(is_staff=True, id=user_id).exists():
+                return UserCoachDetailSerializer
+            return UserAthleteDetailSerializer
 
         return super().get_serializer_class()
 
