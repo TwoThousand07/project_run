@@ -17,7 +17,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (RunSerializer,
                           UserSerializer,
-                          UserDetailSerializer,
+                          UserCoachDetailSerializer,
                           UserAthleteDetailSerializer,
                           AthleteInfoSerializer,
                           ChallengeSerializer,

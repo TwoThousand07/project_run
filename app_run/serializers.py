@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Run, Challenge, Position, CollectibleItem
+from .models import Run, Challenge, Position, CollectibleItem, Subscripe
 
 from django.contrib.auth.models import User
 
@@ -104,3 +104,31 @@ class UserDetailSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = UserSerializer.Meta.fields + ["items"]
+
+
+class UserAthleteDetailSerializer(UserDetailSerializer):
+    coach = serializers.SerializerMethodField()
+
+    class Meta(UserDetailSerializer.Meta):
+        model = User
+        fields = UserDetailSerializer.Meta.fields + ["coach"]
+
+    def get_coach(self, obj):
+        try:
+            sub = Subscripe.objects.get(athlete=obj.id)
+            return sub.coach_id
+        except Subscripe.DoesNotExist:
+            return None
+
+
+class UserCoachDetailSerializer(UserDetailSerializer):
+    athletes = serializers.SerializerMethodField()
+
+    class Meta(UserDetailSerializer.Meta):
+        model = User
+        fields = UserDetailSerializer.Meta.fields + ["athletes"]
+
+    def get_athletes(self, obj):
+        return [id for id in obj.subscribers.values_list("id", flat=True)]
+        
+        
