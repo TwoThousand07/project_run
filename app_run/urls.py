@@ -25,5 +25,5 @@ urlpatterns = [
     
     path('upload_file/', UploadXLSXFilesAPIView.as_view()),
     
-    path("subscripe_to_coach/<int:id>/", SubscripeToCoachAPIView.as_view())
+    path("subscribe_to_coach/<int:id>/", SubscripeToCoachAPIView.as_view())
 ]
