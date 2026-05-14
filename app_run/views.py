@@ -345,9 +345,7 @@ class ChallengesSummaryAPIView(APIView):
             res["name_to_display"] = ch
 
             athlethes = []
-            for usr in User.objects.filter(
-                challenges__full_name="Челлендж 2 км за 10 минут!"
-            ):
+            for usr in User.objects.filter(challenges__full_name=ch):
                 athlete = {}
                 athlete["id"] = usr.id
                 athlete["full_name"] = f"{usr.first_name} {usr.last_name}"
