@@ -355,7 +355,7 @@ class ChallengesSummaryAPIView(APIView):
 
                 athlethes.append(athlete)
 
-            res["athlethes"] = athlethes
+            res["athletes"] = athlethes
 
             response.append(res)
 
