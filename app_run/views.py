@@ -350,7 +350,7 @@ class ChallengesSummaryAPIView(APIView):
             ):
                 athlete = {}
                 athlete["id"] = usr.id
-                athlete["full_name"] = "Erzhan Aitimov"
+                athlete["full_name"] = f"{usr.first_name} {usr.last_name}"
                 athlete["username"] = usr.username
 
                 athlethes.append(athlete)
