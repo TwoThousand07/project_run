@@ -17,7 +17,7 @@ class Run(models.Model):
     status = models.CharField(max_length=20, choices=CHOICES, default="init")
 
     distance = models.FloatField(default=0)
-    speed = models.FloatField(default=0)
+    speed = models.FloatField(default=0, null=True)
 
     run_time_seconds = models.IntegerField(default=0)
 
