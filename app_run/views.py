@@ -1,63 +1,62 @@
 from django.conf import settings
-from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from django.shortcuts import get_object_or_404
-from django.db.models import Max, Min, Count, Q, Avg, Sum
-
-from rest_framework.pagination import PageNumberPagination
-
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.views import APIView
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework import status
-
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import (RunSerializer,
-                          UserSerializer,
-                          UserCoachDetailSerializer,
-                          UserAthleteDetailSerializer,
-                          AthleteInfoSerializer,
-                          ChallengeSerializer,
-                          PositionSerializer,
-                          CollectibleItemSerializer)
-from .models import (Run,
-                     AthleteInfo,
-                     Challenge,
-                     Position,
-                     CollectibleItem,
-                     Subscripe)
-
-from .services import calculate_total_run_distance, creating_challenges_for_finished_runs
-from .utils import import_xlsx_from_file, calculate_distance_between_two_positions
+from .models import AthleteInfo, Challenge, CollectibleItem, Position, Run, Subscripe
+from .serializers import (
+    AthleteInfoSerializer,
+    ChallengeSerializer,
+    CollectibleItemSerializer,
+    PositionSerializer,
+    RunSerializer,
+    UserAthleteDetailSerializer,
+    UserCoachDetailSerializer,
+    UserSerializer,
+)
+from .services import (
+    calculate_total_run_distance,
+    creating_challenges_for_finished_runs,
+)
+from .utils import calculate_distance_between_two_positions, import_xlsx_from_file
 
 
 class CompanyInformationAPIView(APIView):
-    '''
-        Инфорация о странице
-    '''
+    """
+    Инфорация о странице
+    """
 
     def get(self, request):
-        return Response({
-            "company_name": settings.COMPANY_NAME,
-            "slogan": settings.SLOGAN,
-            "contacts": settings.CONTACTS
-        })
+        return Response(
+            {
+                "company_name": settings.COMPANY_NAME,
+                "slogan": settings.SLOGAN,
+                "contacts": settings.CONTACTS,
+            }
+        )
 
 
 class BasePagination(PageNumberPagination):
-    '''
-        Пагинация для RUN view
-    '''
-    page_size_query_param = 'size'
+    """
+    Пагинация для RUN view
+    """
+
+    page_size_query_param = "size"
 
 
 class RunViewSet(viewsets.ModelViewSet):
-    '''
-        Инфорация о забеге атлета
-    '''
+    """
+    Инфорация о забеге атлета
+    """
+
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ["created_at"]
     filterset_fields = ["status", "athlete"]
@@ -67,18 +66,24 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class RunStartAPIView(APIView):
-    '''
-        Представление для инициализации старта забега
-    '''
+    """
+    Представление для инициализации старта забега
+    """
 
     def post(self, request, id):
         try:
             run = Run.objects.get(id=id)
         except Run.DoesNotExist:
-            return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Забега с данным айди не существует"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if run.status in ("in_progress", "finished"):
-            return Response({"error": "Забег уже начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Забег уже начат или завершен"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         run.status = "in_progress"
         run.save()
@@ -86,22 +91,28 @@ class RunStartAPIView(APIView):
 
 
 class RunStopAPIView(APIView):
-    '''
-        Представление для инициалзиции завершения забега
-    '''
+    """
+    Представление для инициалзиции завершения забега
+    """
 
     def post(self, request, id):
         try:
             run = Run.objects.get(id=id)
         except Run.DoesNotExist:
-            return Response({"error": "Забега с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Забега с данным айди не существует"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if run.status in ("init", "finished"):
-            return Response({"error": "Забег еще не начат или завершен"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Забег еще не начат или завершен"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        '''
+        """
             После окончания забега, добавляем расстояние между двумя точками в общую Distance поле модели Run, чтобы получить дистанцию за весь забег
-        '''
+        """
 
         run.status = "finished"
         run.distance = calculate_total_run_distance(run)
@@ -110,14 +121,14 @@ class RunStopAPIView(APIView):
         aggregated_fields = run.position_set.aggregate(
             max_date=Max("date_time"),
             min_date=Min("date_time"),
-
             # avg_speed
             avg_speed=Avg("speed"),
         )
 
         if aggregated_fields["min_date"] and aggregated_fields["max_date"]:
             run.run_time_seconds = (
-                aggregated_fields["max_date"] - aggregated_fields["min_date"]).total_seconds()
+                aggregated_fields["max_date"] - aggregated_fields["min_date"]
+            ).total_seconds()
         else:
             run.run_time_seconds = 0
 
@@ -130,13 +141,15 @@ class RunStopAPIView(APIView):
 
         creating_challenges_for_finished_runs(run)
 
-        return Response({"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Забег успешно завершен!"}, status=status.HTTP_200_OK
+        )
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    '''
-        Информация о пользователях
-    '''
+    """
+    Информация о пользователях
+    """
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -171,18 +184,22 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AthleteInfoAPIView(APIView):
-
     def get(self, request, user_id):
 
         athlete = get_object_or_404(User, id=user_id)
 
         athlete_info, created = AthleteInfo.objects.prefetch_related(
-            "athlete").get_or_create(athlete=athlete)
+            "athlete"
+        ).get_or_create(athlete=athlete)
 
-        return Response({
-            "user_id": user_id,
-            "goals": athlete_info.goals,
-            "weight": athlete_info.weight}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "user_id": user_id,
+                "goals": athlete_info.goals,
+                "weight": athlete_info.weight,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def put(self, request, user_id):
 
@@ -190,14 +207,17 @@ class AthleteInfoAPIView(APIView):
         if athlete_serializer.is_valid(raise_exception=True):
             athlete = get_object_or_404(User, id=user_id)
 
-            athlete_info, created = AthleteInfo.objects.prefetch_related("athlete").update_or_create(athlete=athlete, defaults={
-                "goals": athlete_serializer.validated_data.get("goals", None),
-                "weight": athlete_serializer.validated_data.get("weight", None)
-            })
+            athlete_info, created = AthleteInfo.objects.prefetch_related(
+                "athlete"
+            ).update_or_create(
+                athlete=athlete,
+                defaults={
+                    "goals": athlete_serializer.validated_data.get("goals", None),
+                    "weight": athlete_serializer.validated_data.get("weight", None),
+                },
+            )
 
-            return Response(
-                athlete_serializer.data,
-                status=status.HTTP_201_CREATED)
+            return Response(athlete_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ChallengeViewSet(viewsets.ModelViewSet):
@@ -228,17 +248,23 @@ class PositionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         instance = serializer.save()  # runner2 - latitude:12.0000, longitude:35.0000
         try:
-            position_before = Position.objects.filter(
-                run=instance.run).order_by("-date_time")[1]
+            position_before = Position.objects.filter(run=instance.run).order_by(
+                "-date_time"
+            )[1]
 
             distance_between_before_and_now = calculate_distance_between_two_positions(
-                (position_before.latitude, position_before.longitude), (instance.latitude, instance.longitude), measurement="m")
+                (position_before.latitude, position_before.longitude),
+                (instance.latitude, instance.longitude),
+                measurement="m",
+            )
             timedelta_between = instance.date_time - position_before.date_time
 
             instance.speed = round(
-                distance_between_before_and_now / timedelta_between.total_seconds(), 2)
+                distance_between_before_and_now / timedelta_between.total_seconds(), 2
+            )
             instance.distance = round(
-                (distance_between_before_and_now * 0.001) + position_before.distance, 2)
+                (distance_between_before_and_now * 0.001) + position_before.distance, 2
+            )
 
             instance.save()
         except IndexError:
@@ -257,7 +283,7 @@ class UploadXLSXFilesAPIView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        uploaded_file = request.FILES['file']
+        uploaded_file = request.FILES["file"]
 
         result = import_xlsx_from_file(uploaded_file)
 
@@ -265,7 +291,6 @@ class UploadXLSXFilesAPIView(APIView):
 
 
 class SubscripeToCoachAPIView(APIView):
-
     def post(self, request, id):
         coach_id = id
         athlete_id = request.data.get("athlete")
@@ -273,21 +298,65 @@ class SubscripeToCoachAPIView(APIView):
         try:
             coach = User.objects.get(id=coach_id)
         except User.DoesNotExist:
-            return Response({"error": "Тренера с данным айди не существует"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Тренера с данным айди не существует"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         try:
             athlete = User.objects.get(id=athlete_id)
         except User.DoesNotExist:
-            return Response({"error": "Атлета с данным айди не существует"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Атлета с данным айди не существует"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if (not coach.is_staff) or (athlete.is_staff):
-            return Response({"error": "Подписываться могут только athlete, и можно подписываться только к coach"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": "Подписываться могут только athlete, и можно подписываться только к coach"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
-            Subscripe.objects.create(
-                coach=coach,
-                athlete=athlete
-            )
+            Subscripe.objects.create(coach=coach, athlete=athlete)
         except IntegrityError:
-            return Response({"error": "Подписаться можно лишь один раз"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": f"Атлет {athlete_id} успешно подписался на тренера {coach_id}"}, status=status.HTTP_200_OK)
+            return Response(
+                {"error": "Подписаться можно лишь один раз"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            {"message": f"Атлет {athlete_id} успешно подписался на тренера {coach_id}"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ChallengesSummaryAPIView(APIView):
+    def get(self, request):
+        response = []
+
+        for ch in set(
+            Challenge.objects.all()
+            .select_related("athlete")
+            .values_list("full_name", flat=True)
+        ):
+            res = {}
+            res["name_to_display"] = ch
+
+            athlethes = []
+            for usr in User.objects.filter(
+                challenges__full_name="Челлендж 2 км за 10 минут!"
+            ):
+                athlete = {}
+                athlete["id"] = usr.id
+                athlete["full_name"] = "Erzhan Aitimov"
+                athlete["username"] = usr.username
+
+                athlethes.append(athlete)
+
+            res["athlethes"] = athlethes
+
+            response.append(res)
+
+        return Response(response)
