@@ -1,3 +1,4 @@
+from multiprocessing import Value
 from posix import stat
 
 from django.conf import settings
@@ -374,6 +375,14 @@ class RatingCoachAPIView(APIView):
     def post(self, request, coach_id):
         athlete_id = request.data.get("athlete")
         rating = request.data.get("rating")
+
+        try:
+            rating = int(rating)
+        except ValueError:
+            return Response(
+                {"error": "Рейтинг должен быть числом"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             coach = User.objects.get(id=coach_id)
