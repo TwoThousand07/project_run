@@ -117,7 +117,7 @@ class Rating(models.Model):
     athlete = models.ForeignKey(User, on_delete=models.CASCADE)
     coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
 
-    rating = models.FloatField(choices=RATING_CHOICES, null=True, blank=True)
+    rating = models.IntegerField(choices=RATING_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return f"{self.athlete.username} поставил тренеру {self.coach.username} рейтинг {self.rating}"
