@@ -376,13 +376,14 @@ class RatingCoachAPIView(APIView):
         athlete_id = request.data.get("athlete")
         rating = request.data.get("rating")
 
-        try:
-            rating = int(rating)
-        except ValueError:
-            return Response(
-                {"error": "Рейтинг должен быть числом"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if rating:
+            try:
+                rating = int(rating)
+            except ValueError:
+                return Response(
+                    {"error": "Рейтинг должен быть числом"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         try:
             coach = User.objects.get(id=coach_id)
