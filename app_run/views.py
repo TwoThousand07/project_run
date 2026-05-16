@@ -376,14 +376,13 @@ class RatingCoachAPIView(APIView):
         athlete_id = request.data.get("athlete")
         rating = request.data.get("rating")
 
-        if rating:
-            try:
-                rating = int(rating)
-            except ValueError:
-                return Response(
-                    {"error": "Рейтинг должен быть числом"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        try:
+            athlete = User.objects.get(id=athlete_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Атлета с данным айди не существует"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             coach = User.objects.get(id=coach_id)
@@ -391,14 +390,6 @@ class RatingCoachAPIView(APIView):
             return Response(
                 {"error": "Тренера с данным айди не существует"},
                 status=status.HTTP_404_NOT_FOUND,
-            )
-
-        try:
-            athlete = User.objects.get(id=athlete_id)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "Атлета с данным айди не существует"},
-                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
@@ -410,6 +401,15 @@ class RatingCoachAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        if rating:
+            try:
+                rating = int(rating)
+            except ValueError:
+                return Response(
+                    {"error": "Рейтинг должен быть числом"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         try:
             Rating.objects.update_or_create(
