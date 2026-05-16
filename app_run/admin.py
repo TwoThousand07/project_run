@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscripe
+from .models import (
+    AthleteInfo,
+    Challenge,
+    CollectibleItem,
+    Position,
+    Rating,
+    Run,
+    Subscripe,
+)
 
 
 class RunAdmin(admin.ModelAdmin):
@@ -13,6 +21,7 @@ admin.site.register(Challenge)
 admin.site.register(Position)
 admin.site.register(CollectibleItem)
 admin.site.register(Subscripe)
+admin.site.register(Rating)
 # @admin.register(User)
 # class UserAdmin(admin.ModelAdmin):
 

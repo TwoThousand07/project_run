@@ -1,23 +1,38 @@
+from django.contrib.auth.models import User
+from django.db.models import Avg
 from rest_framework import serializers
 
-from .models import Run, Challenge, Position, CollectibleItem, Subscripe
-
-from django.contrib.auth.models import User
+from .models import Challenge, CollectibleItem, Position, Rating, Run, Subscripe
 
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     runs_finished = serializers.IntegerField(read_only=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["id", "date_joined", "username",
-                  "last_name", "first_name", "type", "runs_finished"]
+        fields = [
+            "id",
+            "date_joined",
+            "username",
+            "last_name",
+            "first_name",
+            "type",
+            "runs_finished",
+            "rating",
+        ]
 
     def get_type(self, obj):
         if obj.is_staff:
             return "coach"
         return "athlete"
+
+    def get_rating(self, obj):
+        if obj.is_staff:
+            return obj.ratings.aggregate(avg_ratings=Avg("rating"))["avg_ratings"]
+
+        return None
 
 
 class AthleteSerializer(serializers.ModelSerializer):
@@ -31,8 +46,17 @@ class RunSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Run
-        fields = ["id", "athlete", "created_at", "run_time_seconds", "comment",
-                  "status", "distance", "speed", "athlete_data"]
+        fields = [
+            "id",
+            "athlete",
+            "created_at",
+            "run_time_seconds",
+            "comment",
+            "status",
+            "distance",
+            "speed",
+            "athlete_data",
+        ]
 
 
 class AthleteInfoSerializer(serializers.Serializer):
@@ -42,8 +66,7 @@ class AthleteInfoSerializer(serializers.Serializer):
 
     def validate_weight(self, value):
         if not (value > 0 and value < 900):
-            raise serializers.ValidationError(
-                "Вес должен быть больше 0 и меньше 900!")
+            raise serializers.ValidationError("Вес должен быть больше 0 и меньше 900!")
         return value
 
 
@@ -58,25 +81,35 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "run", "latitude", "longitude",
-                  "date_time", "speed", "distance"]
+        fields = [
+            "id",
+            "run",
+            "latitude",
+            "longitude",
+            "date_time",
+            "speed",
+            "distance",
+        ]
 
     def validate_run(self, value):
         if value.status != "in_progress":
             raise serializers.ValidationError(
-                "Запустить точку можно лишь на запущенном забеге")
+                "Запустить точку можно лишь на запущенном забеге"
+            )
         return value
 
     def validate_latitude(self, value):
         if not (value >= -90.0 and value <= 90.0):
             raise serializers.ValidationError(
-                "Широта должна быть между -90.0 и 90.0 включительно")
+                "Широта должна быть между -90.0 и 90.0 включительно"
+            )
         return value
 
     def validate_longitude(self, value):
         if not (value >= -180.0 and value <= 180.0):
             raise serializers.ValidationError(
-                "Долгота должна быть между -180.0 и 180.0 включительно")
+                "Долгота должна быть между -180.0 и 180.0 включительно"
+            )
         return value
 
 
@@ -88,13 +121,15 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
     def validate_latitude(self, value):
         if not (value >= -90.0 and value <= 90.0):
             raise serializers.ValidationError(
-                "Широта должна быть между -90.0 и 90.0 включительно")
+                "Широта должна быть между -90.0 и 90.0 включительно"
+            )
         return value
 
     def validate_longitude(self, value):
         if not (value >= -180.0 and value <= 180.0):
             raise serializers.ValidationError(
-                "Долгота должна быть между -180.0 и 180.0 включительно")
+                "Долгота должна быть между -180.0 и 180.0 включительно"
+            )
         return value
 
 
@@ -130,5 +165,3 @@ class UserCoachDetailSerializer(UserDetailSerializer):
 
     def get_athletes(self, obj):
         return [id for id in obj.subscribers.values_list("athlete_id", flat=True)]
-        
-        

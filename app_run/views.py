@@ -1,3 +1,5 @@
+from posix import stat
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -11,7 +13,15 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import AthleteInfo, Challenge, CollectibleItem, Position, Run, Subscripe
+from .models import (
+    AthleteInfo,
+    Challenge,
+    CollectibleItem,
+    Position,
+    Rating,
+    Run,
+    Subscripe,
+)
 from .serializers import (
     AthleteInfoSerializer,
     ChallengeSerializer,
@@ -358,3 +368,51 @@ class ChallengesSummaryAPIView(APIView):
             response.append(res)
 
         return Response(response)
+
+
+class RatingCoachAPIView(APIView):
+    def post(self, request, coach_id):
+        athlete_id = request.data.get("athlete")
+        rating = request.data.get("rating")
+
+        try:
+            coach = User.objects.get(id=coach_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Тренера с данным айди не существует"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            athlete = User.objects.get(id=athlete_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Атлета с данным айди не существует"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            Subscripe.objects.get(coach=coach, athlete=athlete)
+        except Subscripe.DoesNotExist:
+            return Response(
+                {
+                    "error": "Атлет должен быть подписан на тренера, чтобы поставить ему рейтинг"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            Rating.objects.update_or_create(
+                athlete=athlete, coach=coach, defaults={"rating": rating}
+            )
+        except IntegrityError:
+            return Response(
+                {"error": "Атлет может лишь один раз поставить рейтинг этому тренеру"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {
+                "message": f"Атлет {athlete.username} поставил тренеру {coach.username} рейтинг {rating}"
+            }
+        )
