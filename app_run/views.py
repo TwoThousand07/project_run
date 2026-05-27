@@ -1,5 +1,6 @@
 from multiprocessing import Value
 from posix import stat
+from turtle import st
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -410,6 +411,10 @@ class RatingCoachAPIView(APIView):
                     {"error": "Рейтинг должен быть числом"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+        else:
+            return Response(
+                {"error": "Передайте рейтинг"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             Rating.objects.update_or_create(
