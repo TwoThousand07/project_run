@@ -411,10 +411,10 @@ class RatingCoachAPIView(APIView):
                     {"error": "Рейтинг должен быть числом"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        else:
-            return Response(
-                {"error": "Передайте рейтинг"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        # else:
+        #     return Response(
+        #         {"error": "Передайте рейтинг"}, status=status.HTTP_400_BAD_REQUEST
+        #     )
 
         try:
             Rating.objects.update_or_create(
