@@ -402,6 +402,12 @@ class RatingCoachAPIView(APIView):
         if rating:
             try:
                 rating = int(rating)
+
+                if not (1 <= rating <= 5):
+                    return Response(
+                        {"error": "Рейтинг должен быть в диапазоне с 1 до 5"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
             except ValueError:
                 return Response(
                     {"error": "Рейтинг должен быть числом"},
