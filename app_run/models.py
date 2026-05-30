@@ -114,7 +114,9 @@ class Subscripe(models.Model):
 class Rating(models.Model):
     RATING_CHOICES = [(1.0, 1), (2.0, 2), (3.0, 3), (4.0, 4), (5.0, 5)]
 
-    athlete = models.ForeignKey(User, on_delete=models.CASCADE)
+    athlete = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="given_ratings"
+    )
     coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
 
     rating = models.FloatField(choices=RATING_CHOICES, null=True, blank=True)

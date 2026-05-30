@@ -168,7 +168,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = self.queryset.annotate(
-            runs_finished=Count("run", filter=Q(run__status="finished"))
+            runs_finished=Count("run", filter=Q(run__status="finished")),
+            rating=Avg("ratings__rating"),
         ).exclude(is_superuser=True)
 
         type = self.request.query_params.get("type", None)

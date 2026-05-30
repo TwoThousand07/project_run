@@ -1,3 +1,5 @@
+from pickle import TRUE
+
 from django.contrib.auth.models import User
 from django.db.models import Avg
 from rest_framework import serializers
@@ -8,7 +10,7 @@ from .models import Challenge, CollectibleItem, Position, Rating, Run, Subscripe
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     runs_finished = serializers.IntegerField(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.FloatField()
 
     class Meta:
         model = User
@@ -27,12 +29,6 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_staff:
             return "coach"
         return "athlete"
-
-    def get_rating(self, obj):
-        if obj.is_staff:
-            return obj.ratings.aggregate(avg_ratings=Avg("rating"))["avg_ratings"]
-
-        return None
 
 
 class AthleteSerializer(serializers.ModelSerializer):
