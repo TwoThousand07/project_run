@@ -481,18 +481,3 @@ class AnalytisForCoachAPIView(APIView):
         }
 
         return Response(response, status=status.HTTP_200_OK)
-
-
-# {
-# 'longest_run_user': ...  # Id Бегуна который сделал самый длинный забег у этого Тренера
-
-# 'longest_run_value': ... # Дистанция самого длинного забега
-
-# 'total_run_user': ...    # Id Бегуна который пробежал в сумме больше всех у этого Тренера
-
-# 'total_run_value': ...   # Дистанция которую в сумме пробежал этот Бегун
-
-# 'speed_avg_user': ...    #  Id Бегуна который всреднем бежал быстрее всех
-
-# 'speed_avg_value': ...   # Средняя скорость этого Бегуна
-# }
