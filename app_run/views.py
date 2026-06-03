@@ -440,11 +440,59 @@ class RatingCoachAPIView(APIView):
 
 class AnalytisForCoachAPIView(APIView):
     def get(self, request, coach_id):
+        coach = get_object_or_404(User, id=coach_id)
 
-        try:
-            coach = User.objects.get(id=coach_id)
-        except User.DoesNotExist:
-            return Response({"error": "Тренера с данным айди не существует"},
-                status=status.HTTP_404_NOT_FOUND)
+        # Бегун, который сделал самый длинный забег
+        longest_subscriber = (
+            coach.subscribers.annotate(max_dist=Max("athlete__run__distance"))
+            .order_by("-max_dist")
+            .first()
+        )
+        longest_run_user = longest_subscriber.athlete_id
+        longest_run_distance = longest_subscriber.max_dist
 
-        
+        # Бегун, который в сумме пробежал больше всех
+        total_run = (
+            coach.subscribers.annotate(total_run=Sum("athlete__run__distance"))
+            .order_by("-total_run")
+            .first()
+        )
+
+        total_run_user = total_run.athlete_id
+        total_run_value = total_run.total_run
+
+        # Бегун, который всреднем бежал быстрее всех
+        avg_speed = (
+            coach.subscribers.annotate(avg_speed=Avg("athlete__run__speed"))
+            .order_by("-avg_speed")
+            .first()
+        )
+
+        avg_speed_user = avg_speed.athlete_id
+        avg_speed_value = avg_speed.avg_speed
+
+        response = {
+            "longest_run_user": longest_run_user,
+            "longest_run_value": longest_run_distance,
+            "total_run_user": total_run_user,
+            "total_run_value": total_run_value,
+            "speed_avg_user": avg_speed_user,
+            "speed_avg_value": avg_speed_value,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+# {
+# 'longest_run_user': ...  # Id Бегуна который сделал самый длинный забег у этого Тренера
+
+# 'longest_run_value': ... # Дистанция самого длинного забега
+
+# 'total_run_user': ...    # Id Бегуна который пробежал в сумме больше всех у этого Тренера
+
+# 'total_run_value': ...   # Дистанция которую в сумме пробежал этот Бегун
+
+# 'speed_avg_user': ...    #  Id Бегуна который всреднем бежал быстрее всех
+
+# 'speed_avg_value': ...   # Средняя скорость этого Бегуна
+# }
