@@ -1,3 +1,5 @@
+from posix import stat
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -434,3 +436,15 @@ class RatingCoachAPIView(APIView):
                 "message": f"Атлет {athlete.username} поставил тренеру {coach.username} рейтинг {rating}"
             }
         )
+
+
+class AnalytisForCoachAPIView(APIView):
+    def get(self, request, coach_id):
+
+        try:
+            coach = User.objects.get(id=coach_id)
+        except User.DoesNotExist:
+            return Response({"error": "Тренера с данным айди не существует"},
+                status=status.HTTP_404_NOT_FOUND)
+
+        
